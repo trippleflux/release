@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 COMPONENTS="mono gtksharp managed-components"
 for i in ${COMPONENTS}
 	do defs/$i prerequisites
