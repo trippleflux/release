@@ -1,6 +1,6 @@
 #!/usr/bin/bash -xe
 
-REPO=${2:-"https://download.mono-project.com/archive/nightly/macos-10-universal/MonoFramework-MDK-5.3.0.465.macos10.xamarin.universal.pkg"}
+REPO=${2:-"https://download.mono-project.com/archive/nightly/macos-10-universal/MonoFramework-MDK-5.3.0.500.macos10.xamarin.universal.pkg"}
 REPODIR=$(dirname $(realpath $0))/../repos/managed-components
 
 error()
@@ -98,13 +98,26 @@ install()
 			sed "s#@@RUNTIME@@#${RUNTIME}\\\\#g" ${REPODIR}/../../resources/wrapper.bat > $i.bat
 			sed -i "s#@@COMMAND@@#${EXENAME}#g" $i.bat
 			sed -i 's#/#\\#g' $i.bat
+            sed -i 's#/Library.*/[0-9]\+\.[0-9]\+\.[0-9]\+/lib/#\"\$\(cygpath -w \"\$\{BASH_SOURCE%/\*\}\"/../lib/\)\"#g#' $i
+			sed -i 's#\"\"#\"#g' $i
+			sed -i 's#)\"#)#g' $i
+			sed -i 's#exe #exe\" #' $i
+			sed -i 's#dll #dll\" #' $i
+			sed -i 's#basename \$0#basename \"\$0\"#' $i
 		fi
-		sed -i 's#/Library.*/[0-9]\+\.[0-9]\+\.[0-9]\+/lib/#\"\$\(cygpath -w \"\$\{BASH_SOURCE%/\*\}\"/../lib/\)\"#g#' $i
-		sed -i 's#\"\"#\"#g' $i
-		sed -i 's#)\"#)#g' $i
-		sed -i 's#exe #exe\" #' $i
-		sed -i 's#dll #dll\" #' $i
-		sed -i 's#basename \$0#basename \"\$0\"#' $i
+		if [ -n "$(grep -hoE '[\" ]/Users.*\.(exe|dll)' $i)" ]
+			then EXENAME=$(basename `grep -hoE -m 1 '[\" ]/Users.*\.(exe|dll)' $i | sed 's/"//g' | sed 's/$MONO_OPTIONS//g' | sed 's/.*[[:space:]]//'`)
+			RUNTIME=$(dirname `grep -hoE -m 1 '[\" ]/Users.*\.(exe|dll)' $i | sed 's/$MONO_OPTIONS//g'` | sed 's/^\"//' | sed 's#/Users.*/lib/##' | sed '/^mono\//! s#^#..\\\\#' | sed 's#^mono/##' | sed '$!d')
+			sed "s#@@RUNTIME@@#${RUNTIME}\\\\#g" ${REPODIR}/../../resources/wrapper.bat > $i.bat
+			sed -i "s#@@COMMAND@@#${EXENAME}#g" $i.bat
+			sed -i 's#/#\\#g' $i.bat
+			sed -i 's#/Users.*/[0-9]\+\.[0-9]\+\.[0-9]\+/lib/#\"\$\(cygpath -w \"\$\{BASH_SOURCE%/\*\}\"/../lib/\)\"#g#' $i
+			sed -i 's#\"\"#\"#g' $i
+			sed -i 's#)\"#)#g' $i
+			sed -i 's#exe #exe\" #' $i
+			sed -i 's#dll #dll\" #' $i
+			sed -i 's#basename \$0#basename \"\$0\"#' $i
+		fi
 	done
 	cp xsp4 xsp
 	cp xsp4.bat xsp.bat
