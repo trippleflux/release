@@ -98,7 +98,7 @@ install()
 			sed "s#@@RUNTIME@@#${RUNTIME}\\\\#g" ${REPODIR}/../../resources/wrapper.bat > $i.bat
 			sed -i "s#@@COMMAND@@#${EXENAME}#g" $i.bat
 			sed -i 's#/#\\#g' $i.bat
-            sed -i 's#/Library.*/[0-9]\+\.[0-9]\+\.[0-9]\+/lib/#\"\$\(cygpath -w \"\$\{BASH_SOURCE%/\*\}\"/../lib/\)\"#g#' $i
+			sed -i 's#/Library.*/[0-9]\+\.[0-9]\+\.[0-9]\+/lib/#\"\$\(cygpath -w \"\$\{BASH_SOURCE%/\*\}\"/../lib/\)\"#g#' $i
 			sed -i 's#\"\"#\"#g' $i
 			sed -i 's#)\"#)#g' $i
 			sed -i 's#exe #exe\" #' $i
